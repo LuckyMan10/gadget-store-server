@@ -8,7 +8,7 @@ exports.loginCheck = [
     .not()
     .isEmpty()
     .withMessage("Поле с почтой не может быть пустым.")
-    .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g)
+    .matches(/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/)
     .withMessage("Неверный формат почты.")
     .bail(),
   check("password")
@@ -20,7 +20,6 @@ exports.loginCheck = [
     .bail(),
   (req, res, next) => {
     const errors = validationResult(req);
-    console.log("errors: ", errors);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
@@ -45,7 +44,7 @@ exports.registrationCheck = [
     .not()
     .isEmpty()
     .withMessage("Поле с почтой не может быть пустым.")
-    .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g)
+    .matches(/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/)
     .withMessage("Неверный формат почты.")
     .bail(),
 
@@ -62,7 +61,6 @@ exports.registrationCheck = [
     .bail(),
   (req, res, next) => {
     const errors = validationResult(req);
-    console.log("errors: ", errors);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
