@@ -1,5 +1,4 @@
 const User = require("../models/userModel");
-const FavoriteList = require("../models/favoriteListModel");
 const Cart = require("../models/cartModel");
 const jwt = require("jsonwebtoken");
 const tokenService = require("../service/tokenService");
@@ -10,10 +9,10 @@ class userController {
       const token = req.headers.authorization.split(" ")[1];
       const decoded = tokenService.validateAccessToken(token);
       const userCart = await Cart.find({ userId: decoded.id });
-      res.status(200).json(userCart);
+      return res.json(userCart);
     } catch (e) {
       console.log("getUserCart error: ", e);
-      res.status(400).json({ message: e });
+      return res.json({ message: e });
     }
   }
   async updateUserCart(req, res) {
@@ -42,7 +41,7 @@ class userController {
         (el) => el.productId === updateItem.productId
       );
       if (!newItem[0]) {
-        const update = await Cart.findOneAndUpdate(
+        await Cart.findOneAndUpdate(
           { userId: decoded.id },
           {
             $push: {
@@ -50,28 +49,34 @@ class userController {
             },
           }
         );
-        res.status(200).json(update);
+        const updatedCart = await Cart.find({ userId: decoded.id });
+        return res.json(updatedCart);
       }
       if (newItem[0]) {
-        if(!type) {
+        if (!type) {
           throw "Необходимо указать type (INCREMENT или DECREMENT)";
         }
-        if(!quantity_values[type]) {
+        if (!quantity_values[type]) {
           throw "Неизвестный type. Допустимые значения INCREMENT или DECREMENT.";
         }
-        const update = await Cart.findOneAndUpdate(
+        await Cart.findOneAndUpdate(
           { userId: decoded.id, "products.productId": updateItem.productId },
           {
             $inc: {
-              "products.$.quantity": isChangeQuantity(type, newItem[0].quantity, quantity_values)
+              "products.$.quantity": isChangeQuantity(
+                type,
+                newItem[0].quantity,
+                quantity_values
+              ),
             },
           }
         );
-        res.status(200).json(update);
+        const updatedCart = await Cart.find({ userId: decoded.id });
+        return res.json(updatedCart);
       }
     } catch (e) {
       console.log("updateUserCart error: ", e);
-      res.status(400).json({ message: e });
+      return res.json({ message: e });
     }
   }
   async deleteUserCart(req, res) {
@@ -80,39 +85,23 @@ class userController {
       const decoded = tokenService.validateAccessToken(token);
       const { id } = req.query;
       if (!id) {
-        res
-          .status(400)
-          .json({ message: "Недостаточно информации для удаления." });
+        throw "Недостаточно информации для удаления.";
       }
       const cart = await Cart.find({ userId: decoded.id });
       const cartItem = cart[0].products.filter((el) => el.productId === id);
-      const remove = await Cart.findOneAndUpdate(
+      await Cart.findOneAndUpdate(
         { userId: decoded.id },
         {
           $pull: {
-            "products": {"productId": id}
+            products: { productId: id },
           },
         }
       );
-      res.status(200).json(remove);
+      const updatedCart = await Cart.find({ userId: decoded.id });
+      return res.json(updatedCart);
     } catch (e) {
       console.log("deleteUserCart: ", e);
-      res.status(400).json({ message: e });
-    }
-  }
-
-  async getFavList(req, res) {
-    try {
-    } catch (e) {
-      console.log("getFavList error: ", e);
-      throw e;
-    }
-  }
-  async updateFavList(req, res) {
-    try {
-    } catch (e) {
-      console.log("createFavList error: ", e);
-      throw e;
+      return res.status(400).json({ message: e });
     }
   }
 }
